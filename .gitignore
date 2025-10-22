@@ -64,3 +64,10 @@ backups/
 # Celery
 celerybeat-schedule*
 celerybeat.pid
+
+
+
+
+*.env
+.env.*
+!*.env.example
