@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+<div class="grow w-full m-auto max-w-4xl flex flex-col my-2">
+	{% if q %}
+	<h2 class="text-xl font-semibold">
+		Результаты поиска: "{{ q }}"
+	</h2>
+	{% else %}
+	<h2 class="text-xl font-semibold">
+		Все книги
+	</h2>
+	{% endif %}
+
+
+	<div class="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 ">
+		{% for book in books %}
+		<div class=" border border-[#6e6e6e] overflow-hidden rounded-xl cursor-pointer bg-[#202020] hover:bg-[#2f2f2f] ">
+			<div class="relative aspect-[3/4] overflow-hidden">
+				<img src="{{book.cover_url}}" class="w-full h-full absolute inset-0 object-cover object-center">
+				<a href="{% url 'create_book_loan' %}?book_to={{ book.id }}">
+					<button class="absolute left-1/2 -translate-x-1/2 max-w-[95%] cursor-pointer flex bottom-3 bg-[#00aff0] items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white focus:outline-none
+				        disabled:opacity-50 disabled:pointer-events-none" {% if book.amount < 1 %}disabled{% endif %}>
+						Забронировать
+					</button>
+				</a>
+			</div>
+			<div class="flex flex-col p-2 items-center gap-0.5">
+				<h2 class="text-xs font-semibold w-full overflow-hidden text-ellipsis text-nowrap text-center">{{book.bookname}}</h2>
+				<div class="flex items-center gap-1 text-xs text-gray-400">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+						stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+						<circle cx="12" cy="7" r="4"></circle>
+						<path d="M5.5 21a6.5 6.5 0 0 1 13 0"></path>
+					</svg>
+					<span>{{ book.author.name }}</span>
+				</div>
+				<h4 class="text-xs font-light ">
+					Количество : {{book.amount}}
+				</h4>
+			</div>
+		</div>
+		{% empty %}
+		<h2 class="text-xl font-medium">Книги не найдены</h2>
+		{% endfor %}
+	</div>
+
+	<!-- {% for book in books %}
+	<div>
+		<p><strong>{{ book.bookname }}</strong></p>
+		<p>Автор: {{ book.author.name }}</p>
+		<p>Количество: {{ book.amount }}</p>
+	
+		{% if book.review %}
+		<p>{{ book.review }}</p>
+		{% endif %}
+	</div>
+	<hr>
+	{% empty %}
+	<p>Книги не найдены</p>
+	{% endfor %} -->
+
+
+</div>
+
+
+{% endblock %}
