@@ -5,7 +5,7 @@ import re
 
 from django.db import transaction
 
-from .models import Book,Reader,BookLoan
+from .models import Book,Reader,BookLoan,ReaderTicket
 from .models_utils.mixins import TailwindFormMixin
 
 
@@ -159,3 +159,18 @@ class BookLoanUpdateForm(TailwindFormMixin, forms.ModelForm):
                 obj.save()
         return obj
 
+
+
+
+class ReaderTicketForm(TailwindFormMixin,forms.ModelForm):
+    class Meta:
+        model = ReaderTicket
+        exclude = ['issued_at', 'is_active']
+        labels = {
+            'reader': 'Читатель',
+            'code':"Уникальный идентификатор",
+        }
+        widgets = {
+            'reader': forms.Select(),
+            'code': forms.TextInput(attrs={'placeholder': 'Уникальный идентификатор'}),
+        }

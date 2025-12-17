@@ -1,6 +1,9 @@
 from django.db.models import F, Q
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, CreateView,ListView,UpdateView
+from openpyxl.reader.excel import load_workbook
+
+from django.conf import settings
 from .models import *
 from .forms import *
 from django.db import transaction
@@ -19,6 +22,7 @@ class MainPageView(TemplateView):
             {'title': 'Предложить книгу', 'url': '/create_book/'},
             {'title': 'Создать читателя', 'url': '/create_reader/'},
             {'title': 'Выдача книг', 'url': '/bookloan_history/'},
+            {'title':"Создать читательский билет",'url':"/create_ticket/"}
         ]
         return context
 
@@ -113,3 +117,51 @@ class UpdateBookLoanView(TitleContextMixin,UpdateView):
     template_name = 'forms/form.html'
     success_url = reverse_lazy('bookloan_history')
     title = 'Обновить выдачу книги'
+
+
+
+class CreateTicketView(TitleContextMixin,CreateView):
+    model=ReaderTicket
+    form_class =ReaderTicketForm
+    template_name = 'forms/form.html'
+    success_url = reverse_lazy('main')
+    title = 'Создать читательский билет'
+
+class BookLoanExcelView(TemplateView):
+    template_name = 'books/bookloan_excel.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        file_path = settings.BASE_DIR / 'data' / 'book_loans.xlsx'
+        wb = load_workbook(file_path)
+        ws = wb.active
+        rows = []
+        book_ids, reader_ids, librarian_ids = set(), set(), set()
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            rows.append(row)
+            book_ids.add(row[0])
+            reader_ids.add(row[1])
+            librarian_ids.add(row[2])
+
+        books = Book.objects.filter(id__in=book_ids).values('id', 'bookname')
+        readers = Reader.objects.filter(id__in=reader_ids).values('id', 'first_name', 'last_name')
+        librarians = Librarian.objects.filter(id__in=librarian_ids).values('id', 'first_name', 'last_name')
+        book_map = {b['id']: b['bookname'] for b in books}
+        reader_map = {r['id']: f"{r['first_name']} {r['last_name']}" for r in readers}
+        librarian_map = {l['id']: f"{l['first_name']} {l['last_name']}" for l in librarians}
+
+        loans = []
+        for row in rows:
+            loans.append({
+                'book': book_map.get(row[0], '—'),
+                'reader': reader_map.get(row[1], '—'),
+                'librarian': librarian_map.get(row[2], '—'),
+                'due_date': row[3],
+                'returned_at': row[4],
+            })
+        context['loans'] = loans
+        context['title'] = 'История выдач (Excel)'
+        return context
+
+
+

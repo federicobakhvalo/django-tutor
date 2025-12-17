@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="grow w-full max-w-6xl m-auto py-4 px-2">
+	<h2 class="text-2xl font-semibold mb-4 text-white">{{title}}</h2>
+
+
+	<div class="overflow-x-auto rounded-lg border border-gray-700">
+		<table class="min-w-full divide-y divide-gray-700">
+			<thead class="bg-gray-800">
+				<tr>
+					<th class="px-4 py-2 text-left text-sm font-medium text-gray-300 uppercase">Книга</th>
+
+					<th class="px-4 py-2 text-left text-sm font-medium text-gray-300 uppercase">Читатель</th>
+					<th class="px-4 py-2 text-left text-sm font-medium text-gray-300 uppercase">Библиотекарь</th>
+					<th class="px-4 py-2 text-left text-sm font-medium text-gray-300 uppercase">Выдано</th>
+					<th class="px-4 py-2 text-left text-sm font-medium text-gray-300 uppercase">Возврат</th>
+				</tr>
+			</thead>
+			<tbody class="bg-gray-900 divide-y divide-gray-700">
+				{% for loan in loans %}
+				<tr class="hover:bg-gray-800">
+					<td class="px-4 py-2 text-white text-xs">{% if loan.book %}
+					{{loan.book}}
+					{% else %}
+					-
+					{% endif %}</td>
+
+					<td class="px-4 py-2 text-white text-xs">
+						{% if loan.reader %}
+						{{loan.reader}}
+						{% else %}
+						-
+						{% endif %}
+					</td>
+					<td class="px-4 py-2 text-gray-300 text-xs">
+						{% if loan.librarian %}
+						{{loan.librarian}}
+						{% else %}
+						-
+						{% endif %}
+					</td>
+					<td class="px-4 py-2 text-gray-300 text-xs">
+						{{loan.due_date}}
+						<!-- {{ loan.due_date|date:"d.m.Y H:i" }} -->
+					</td>
+					<td class="px-4 py-2 text-gray-300 text-xs flex items-center justify-between">
+						{% if loan.returned_at %}
+						{{loan.returned_at}}
+						<!-- {{ loan.returned_at|date:"d.m.Y" }} -->
+						{% else %}
+						<span class="text-yellow-400 font-medium">не возвращена</span>
+						{% endif %}
+						
+					</td>
+				</tr>
+				{% empty %}
+				<tr>
+					<td colspan="6" class="px-4 py-4 text-center text-gray-400">Записей нет</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	<!-- Пагинация -->
+	
+</div>
+{% endblock %}

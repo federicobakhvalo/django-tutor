@@ -7,4 +7,5 @@ admin.site.register(Book)
 admin.site.register(BookLoan)
 admin.site.register(Librarian)
 admin.site.register(BookAuthor)
+admin.site.register(ReaderTicket)
 

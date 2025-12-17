@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 
 from .models_utils.enums import BookStatus
@@ -18,7 +20,7 @@ class BookAuthor(models.Model):
 
 class Book(models.Model):
     author = models.ForeignKey(BookAuthor, on_delete=models.CASCADE, related_name='books')
-    bookname = models.CharField(max_length=100)
+    bookname = models.CharField(max_length=100,unique=True)
     review = models.TextField(null=True, blank=True, max_length=1000)
     amount = models.PositiveIntegerField(default=0)
     cover_url = models.URLField(max_length=1000)
@@ -90,3 +92,26 @@ class BookLoan(models.Model):
 
     def __str__(self):
         return f'{self.book} → {self.reader}'
+
+
+
+class ReaderTicket(models.Model):
+    reader = models.OneToOneField(
+        Reader,
+        on_delete=models.CASCADE,
+        related_name='ticket'
+    )
+    code = models.CharField(
+        max_length=32,
+        unique=True,
+        editable=False
+    )
+    issued_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        if not self.code:
+            self.code = uuid.uuid4().hex[:12].upper()
+        super().save(*args, **kwargs)
+    def __str__(self):
+        return f"Билет {self.code} — {self.reader}"
