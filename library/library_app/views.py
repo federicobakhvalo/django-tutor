@@ -1,9 +1,10 @@
 from django.db.models import F, Q
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView, CreateView,ListView
+from django.views.generic import TemplateView, CreateView,ListView,UpdateView
 from .models import *
 from .forms import *
 from django.db import transaction
+from .models_utils.mixins import TitleContextMixin
 
 # Create your views here.
 
@@ -17,7 +18,7 @@ class MainPageView(TemplateView):
             {'title': 'Все книги', 'url': '/books/'},
             {'title': 'Предложить книгу', 'url': '/create_book/'},
             {'title': 'Создать читателя', 'url': '/create_reader/'},
-            {'title': 'Выдача книг', 'url': '/book_loan_history/'},
+            {'title': 'Выдача книг', 'url': '/bookloan_history/'},
         ]
         return context
 
@@ -35,23 +36,23 @@ class CreateBookView(CreateView):
 #
 
 
-class CreateReaderView(CreateView):
+class CreateReaderView(TitleContextMixin,CreateView):
     model=Reader
     form_class = ReaderForm
     template_name = 'forms/form.html'
     success_url = reverse_lazy('main')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Создать читателя'
-        return context
+    title = 'Создать читателя'
 
 
-class CreateBookLoan(CreateView):
+
+
+class CreateBookLoan(TitleContextMixin,CreateView):
     model=BookLoan
     template_name = 'forms/form.html'
     form_class = BookLoanForm
     success_url = reverse_lazy('main')
+    title = 'Забронировать книгу'
+
 
     def get_initial(self):
         initial = super().get_initial()
@@ -60,10 +61,7 @@ class CreateBookLoan(CreateView):
             initial['book'] = book_id
         return initial
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Забронировать книгу'
-        return context
+
 
 
 
@@ -82,7 +80,7 @@ class BookListView(ListView):
         self.q = self.request.GET.get('q', '').strip()
         if self.q:
             queryset = queryset.filter(Q(bookname__icontains=self.q) | Q(author_name__icontains = self.q))
-        return queryset
+        return queryset.order_by('bookname')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -107,3 +105,11 @@ class BookLoanListView(ListView):
             )
         queryset = queryset.order_by('-issued_at')
         return queryset
+
+
+class UpdateBookLoanView(TitleContextMixin,UpdateView):
+    model = BookLoan
+    form_class = BookLoanUpdateForm
+    template_name = 'forms/form.html'
+    success_url = reverse_lazy('bookloan_history')
+    title = 'Обновить выдачу книги'

@@ -100,7 +100,6 @@ class BookLoanForm(TailwindFormMixin,forms.ModelForm):
         }
         widgets = {
             'book': forms.Select(),
-
             'reader': forms.Select(),
             'librarian':forms.Select(),
             'due_date':forms.DateInput(attrs={'placeholder':"Дата возврата",'type':"date",})
@@ -119,3 +118,44 @@ class BookLoanForm(TailwindFormMixin,forms.ModelForm):
             book.amount -= 1
             book.save()
             return super().save(commit=commit)
+
+
+class BookLoanUpdateForm(TailwindFormMixin, forms.ModelForm):
+    class Meta:
+        model = BookLoan
+        fields = ['returned_at', 'due_date']
+        labels = {
+            'due_date': "Дата срока возврата книги",
+            'returned_at':"Дата возврата книги читателем",
+
+        }
+        widgets = {
+            'due_date': forms.DateInput(attrs={
+                'placeholder': "Дата возврата",
+                'type': "date"
+            }),
+            'returned_at': forms.DateInput(attrs={
+                'placeholder': "Дата возврата читателем",
+                'type': "date"
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._was_returned = self.instance.returned_at is not None
+
+    def clean_returned_at(self):
+        if self._was_returned:
+            raise forms.ValidationError('Книга уже возвращена')
+        return self.cleaned_data['returned_at']
+    def save(self, commit=True):
+        with transaction.atomic():
+            obj = super().save(commit=False)
+            if not self._was_returned and obj.returned_at:
+                book = obj.book
+                book.amount += 1
+                book.save()
+            if commit:
+                obj.save()
+        return obj
+

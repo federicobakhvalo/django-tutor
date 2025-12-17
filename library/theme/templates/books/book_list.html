@@ -15,7 +15,7 @@
 	{% endif %}
 
 
-	<div class="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 ">
+	<div class="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 my-2 ">
 		{% for book in books %}
 		<div class=" border border-[#6e6e6e] overflow-hidden rounded-xl cursor-pointer bg-[#202020] hover:bg-[#2f2f2f] ">
 			<div class="relative aspect-[3/4] overflow-hidden">
@@ -47,20 +47,53 @@
 		{% endfor %}
 	</div>
 
-	<!-- {% for book in books %}
-	<div>
-		<p><strong>{{ book.bookname }}</strong></p>
-		<p>Автор: {{ book.author.name }}</p>
-		<p>Количество: {{ book.amount }}</p>
+
+	{% if is_paginated %}
+	<div class="flex items-center justify-center gap-1 mt-6">
 	
-		{% if book.review %}
-		<p>{{ book.review }}</p>
+		{# Назад #}
+		{% if page_obj.has_previous %}
+		<a href="?{% if q %}q={{ q }}&{% endif %}page={{ page_obj.previous_page_number }}" class="inline-flex h-9 w-9 items-center justify-center rounded-full
+	                  border border-[#303030] bg-[#191919] text-white
+	                  hover:bg-[#252525] transition">
+			‹
+		</a>
+		{% else %}
+		<span class="inline-flex h-9 w-9 items-center justify-center rounded-full
+	                  border border-[#303030] bg-[#191919] text-gray-600 cursor-not-allowed">
+			‹
+		</span>
 		{% endif %}
+	
+		{# Текущая страница #}
+		<span class="inline-flex h-9 min-w-[36px] items-center justify-center rounded-full
+	               bg-[#252525] text-sm font-medium text-white px-3">
+			{{ page_obj.number }}
+		</span>
+	
+		{# Всего страниц #}
+		<span class="text-xs text-gray-400">
+			из {{ page_obj.paginator.num_pages }}
+		</span>
+	
+		{# Вперед #}
+		{% if page_obj.has_next %}
+		<a href="?{% if q %}q={{ q }}&{% endif %}page={{ page_obj.next_page_number }}" class="inline-flex h-9 w-9 items-center justify-center rounded-full
+	                  border border-[#303030] bg-[#191919] text-white
+	                  hover:bg-[#252525] transition">
+			›
+		</a>
+		{% else %}
+		<span class="inline-flex h-9 w-9 items-center justify-center rounded-full
+	                  border border-[#303030] bg-[#191919] text-gray-600 cursor-not-allowed">
+			›
+		</span>
+		{% endif %}
+	
 	</div>
-	<hr>
-	{% empty %}
-	<p>Книги не найдены</p>
-	{% endfor %} -->
+	{% endif %}
+
+	
 
 
 </div>

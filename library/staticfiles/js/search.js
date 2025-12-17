@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (query) {
       // только если не пусто
       // редирект на search/?q=value
-      window.location.href = `/search/?q=${encodeURIComponent(query)}`;
+      window.location.href = `/books/?q=${encodeURIComponent(query)}`;
     }
   });
 
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (e.key === "Enter") {
       const query = input.value.trim();
       if (query) {
-        window.location.href = `/search/?q=${encodeURIComponent(query)}`;
+        window.location.href = `/books/?q=${encodeURIComponent(query)}`;
       }
     }
   });
